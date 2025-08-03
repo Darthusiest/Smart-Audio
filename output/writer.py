@@ -175,4 +175,36 @@ class OutputWriter:
             logger.error(f"Failed to save JSON file: {e}")
             raise
     
+    def save_transcript_with_timestamps(self, transcript, output_path: Optional[Path] = None) -> Path:
+        """Save transcript with timestamps"""
+        
+        if output_path is None:
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            output_path = self.output_dir / f"transcript_{timestamp}.txt"
+        
+        try:
+            with open(output_path, 'w', encoding='utf-8') as f:
+                f.write("=== TRANSCRIPT WITH TIMESTAMPS ===\n\n")
+                f.write(f"Language: {transcript.language or 'Unknown'}\n")
+                f.write(f"Duration: {transcript.duration or 'Unknown'} seconds\n")
+                f.write(f"Segments: {len(transcript.segments)}\n\n")
+                
+                f.write(transcript.get_text_with_timestamps())
+            
+            logger.info(f"Transcript saved to: {output_path}")
+            return output_path
+            
+        except Exception as e:
+            logger.error(f"Failed to save transcript: {e}")
+            raise
     
+    def cleanup_temp_files(self, temp_files: list) -> None:
+        """Clean up temporary files"""
+        
+        for temp_file in temp_files:
+            try:
+                if Path(temp_file).exists():
+                    Path(temp_file).unlink()
+                    logger.debug(f"Cleaned up temporary file: {temp_file}")
+            except Exception as e:
+                logger.warning(f"Failed to clean up {temp_file}: {e}") 
