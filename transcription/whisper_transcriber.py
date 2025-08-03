@@ -83,4 +83,76 @@ class WhisperTranscriber:
             logger.error(f"Failed to transcribe audio: {e}")
             raise
     
+    def transcribe_chunk(self, audio_path: Path, start_time: float, end_time: float, 
+                        language: Optional[str] = None) -> Transcript:
+        """Transcribe a specific time chunk of audio"""
+        
+        try:
+            logger.info(f"Transcribing chunk {start_time:.2f}s - {end_time:.2f}s")
+            
+            # Load audio and extract chunk
+            import librosa
+            audio, sr = librosa.load(str(audio_path), sr=None)
+            
+            # Convert times to sample indices
+            start_sample = int(start_time * sr)
+            end_sample = int(end_time * sr)
+            
+            # Extract chunk
+            chunk_audio = audio[start_sample:end_sample]
+            
+            # Save temporary chunk file
+            import soundfile as sf
+            from config import TEMP_DIR
+            chunk_path = TEMP_DIR / f"chunk_{start_time:.2f}_{end_time:.2f}.wav"
+            sf.write(str(chunk_path), chunk_audio, sr)
+            
+            # Transcribe chunk
+            transcript = self.transcribe(chunk_path, language)
+            
+            # Clean up temporary file
+            chunk_path.unlink(missing_ok=True)
+            
+            return transcript
+            
+        except Exception as e:
+            logger.error(f"Failed to transcribe chunk: {e}")
+            raise
     
+    def get_available_languages(self) -> Dict[str, str]:
+        """Get list of supported languages"""
+        return {
+            "en": "English",
+            "es": "Spanish",
+            "fr": "French",
+            "de": "German",
+            "it": "Italian",
+            "pt": "Portuguese",
+            "ru": "Russian",
+            "ja": "Japanese",
+            "ko": "Korean",
+            "zh": "Chinese",
+            "ar": "Arabic",
+            "hi": "Hindi",
+            "auto": "Auto-detect"
+        }
+    
+    def detect_language(self, audio_path: Path) -> str:
+        """Detect the language of audio"""
+        
+        try:
+            logger.info("Detecting language...")
+            
+            # Load audio
+            audio, sr = librosa.load(str(audio_path), sr=16000)
+            
+            # Detect language using Whisper
+            result = self.model.detect_language(audio)
+            detected_lang = result["language"]
+            
+            logger.info(f"Detected language: {detected_lang}")
+            return detected_lang
+            
+        except Exception as e:
+            logger.error(f"Failed to detect language: {e}")
+            return "en"  # Default to English 
