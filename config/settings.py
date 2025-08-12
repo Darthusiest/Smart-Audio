@@ -23,8 +23,8 @@ AUDIO_SETTINGS = {
 
 # === Whisper Settings ===
 WHISPER_SETTINGS = {
-    "model_size": "base",           # tiny, base, small, medium, large
-    "language": None,               # Auto-detect
+    "model_size": "small",           # tiny, base, small, medium, large
+    "language": "en",               # Auto-detect
     "task": "transcribe",           # transcribe or translate
     "temperature": 0.0,             # Deterministic output
     "best_of": 5,                   # Number of candidates

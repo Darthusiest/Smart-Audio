@@ -91,7 +91,7 @@ class WhisperTranscriber:
             logger.info(f"Transcribing chunk {start_time:.2f}s - {end_time:.2f}s")
             
             # Load audio and extract chunk
-            import librosa
+            import librosa # Load audio processing library
             audio, sr = librosa.load(str(audio_path), sr=None)
             
             # Convert times to sample indices
@@ -102,9 +102,9 @@ class WhisperTranscriber:
             chunk_audio = audio[start_sample:end_sample]
             
             # Save temporary chunk file
-            import soundfile as sf
-            from config import TEMP_DIR
-            chunk_path = TEMP_DIR / f"chunk_{start_time:.2f}_{end_time:.2f}.wav"
+            import soundfile as sf # Saves the audio chunk from librosa
+            from config import TEMP_DIR # Import temporary directory from config
+            chunk_path = TEMP_DIR / f"chunk_{start_time:.2f}_{end_time:.2f}.wav" # Save chunk to temp directory
             sf.write(str(chunk_path), chunk_audio, sr)
             
             # Transcribe chunk
